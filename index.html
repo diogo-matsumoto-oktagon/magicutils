@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+  <script>
+  
+	
+    function ReplaceWeirdChars(sValue) {
+	
+		return sValue
+			.replace(/…/g, "...")
+			.replace(/–/g, "-")
+			.replace(/’/g, "'")
+			.replace(/“/g, "\"")
+			.replace(/”/g, "\"")
+			.replace(/„/g, "\"")
+			.replace(/＃/g, "#")
+			
+			.replace(/\r\n/g, "\\n")
+			.replace(/\n/g, "\\n")
+		;
+	}
+	
+	
+	function GenerateLocKeyDesc(title)
+	{
+		return GenerateLocKey(title) + "_desc";
+	}
+
+	function GenerateLocKeyTitle(title)
+	{
+		return GenerateLocKey(title) + "_title";
+	}
+
+	function GenerateLocKey(title)
+	{
+		return title.replace(/ /, "_")
+			.replace(/'/g, "")
+			.replace(/,/g, "")
+		;
+	}
+	
+	function ProcessResult() {
+		var sInput = document.getElementById('input').value;
+		
+		var vNames = sInput.split('\n');
+		var vResult = [];
+
+		for (i = 0; i < vNames.length; i++) {
+			var sValue = ReplaceWeirdChars(vNames[i].trim());
+
+			if (sValue == "" || sValue == null) {
+				
+			}
+			else {
+				vResult.push(GenerateLocKeyTitle(sValue));
+			}
+		}
+		
+		document.getElementById('result').value = vResult.join('\n');
+	}
+	
+	function OnLoad() {
+		ProcessResult()
+	}
+	
+	window.onload = OnLoad;
+  </script>
+
+  <span>Input:<span>
+  <div/>
+<textarea id="input" rows="10" oninput="ProcessResult()" cols="50">
+Arcades' Strategy
+</textarea>
+
+<textarea id="result" onchange="" rows="10" cols="50">
+
+</textarea>
+  
+
+</body>
+</html>
