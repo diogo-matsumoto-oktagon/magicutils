@@ -34,7 +34,7 @@
 
 	function GenerateLocKey(title)
 	{
-		return title.replace(/ /, "_")
+		return title.replace(/ /g, "_")
 			.replace(/'/g, "")
 			.replace(/,/g, "")
 		;
@@ -46,7 +46,8 @@
 		var vNames = sInput.split('\n');
 		var vResult = [];
 		
-		var sOutputType = document.querySelector('input[name="OutputType"]:checked').value;
+		// get format option 
+		var sFormatType = document.querySelector('input[name="FormatType"]:checked').value;
 
 		for (i = 0; i < vNames.length; i++) {
 			var sValue = ReplaceWeirdChars(vNames[i].trim());
@@ -56,10 +57,10 @@
 			}
 			else {
 				var sResult
-				if (sOutputType == "title") {
+				if (sFormatType == "title") {
 					sResult = GenerateLocKeyTitle(sValue);
 				}
-				else if (sOutputType == "card") {
+				else if (sFormatType == "card") {
 					sResult =  "<card="+ GenerateLocKey(sValue) + ">";
 				
 				}
@@ -77,18 +78,17 @@
 	function OnLoad() {
 		ProcessResult();
 	}
-	// todo: option for:
-	// <card=Major_Ajanis_Pride>
+	
 	window.onload = OnLoad;
   </script>
 
   <span>Options:<span>
   <br>
-  <input type="radio" onchange="ProcessResult()" name="OutputType" value="raw"> Raw 
+  <input type="radio" onchange="ProcessResult()" name="FormatType" value="raw"> Raw 
   <br>
-  <input type="radio" onchange="ProcessResult()" name="OutputType" value="title" checked> xxx_title
+  <input type="radio" onchange="ProcessResult()" name="FormatType" value="title" checked> xxx_title
   <br>
-  <input type="radio" onchange="ProcessResult()" name="OutputType" value="card"> &ltcard=xxx&gt 
+  <input type="radio" onchange="ProcessResult()" name="FormatType" value="card"> &ltcard=xxx&gt 
   <br>
   
   <span>Input:<span>
