@@ -45,6 +45,8 @@
 		
 		var vNames = sInput.split('\n');
 		var vResult = [];
+		
+		var sOutputType = document.querySelector('input[name="OutputType"]:checked').value;
 
 		for (i = 0; i < vNames.length; i++) {
 			var sValue = ReplaceWeirdChars(vNames[i].trim());
@@ -53,7 +55,19 @@
 				
 			}
 			else {
-				vResult.push(GenerateLocKeyTitle(sValue));
+				var sResult
+				if (sOutputType == "title") {
+					sResult = GenerateLocKeyTitle(sValue);
+				}
+				else if (sOutputType == "card") {
+					sResult =  "<card="+ GenerateLocKey(sValue) + ">";
+				
+				}
+				else {
+				
+					sResult = GenerateLocKey(sValue);
+				}
+				vResult.push(sResult);
 			}
 		}
 		
@@ -61,19 +75,30 @@
 	}
 	
 	function OnLoad() {
-		ProcessResult()
+		ProcessResult();
 	}
-	
+	// todo: option for:
+	// <card=Major_Ajanis_Pride>
 	window.onload = OnLoad;
   </script>
 
+  <span>Options:<span>
+  <br>
+  <input type="radio" onchange="ProcessResult()" name="OutputType" value="raw"> Raw 
+  <br>
+  <input type="radio" onchange="ProcessResult()" name="OutputType" value="title" checked> xxx_title
+  <br>
+  <input type="radio" onchange="ProcessResult()" name="OutputType" value="card"> &ltcard=xxx&gt 
+  <br>
+  
   <span>Input:<span>
-  <div/>
-<textarea id="input" rows="10" oninput="ProcessResult()" cols="50">
+  <br>
+  
+<textarea id="input" rows="20" oninput="ProcessResult()" cols="50">
 Arcades' Strategy
 </textarea>
 
-<textarea id="result" onchange="" rows="10" cols="50">
+<textarea id="result" onchange="" rows="20" cols="50">
 
 </textarea>
   
