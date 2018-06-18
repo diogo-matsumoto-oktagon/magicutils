@@ -2,7 +2,7 @@
 <html>
 <body>
 
-  <script>
+	<script>
   
 	
     function ReplaceWeirdChars(sValue) {
@@ -80,27 +80,31 @@
 	}
 	
 	window.onload = OnLoad;
-  </script>
+	</script>
 
-  <span>Options:<span>
-  <br>
-  <input type="radio" onchange="ProcessResult()" name="FormatType" value="raw"> Raw 
-  <br>
-  <input type="radio" onchange="ProcessResult()" name="FormatType" value="title" checked> xxx_title
-  <br>
-  <input type="radio" onchange="ProcessResult()" name="FormatType" value="card"> &ltcard=xxx&gt 
-  <br>
-  
-  <span>Input:<span>
-  <br>
-  
-<textarea id="input" rows="20" oninput="ProcessResult()" cols="50">
+	<span>Options:<span>
+	<br>
+	<input type="radio" onchange="ProcessResult()" name="FormatType" id="FormatType1" value="raw">  
+	<label for="FormatType1">Raw</label>
+	<br>
+	<input type="radio" onchange="ProcessResult()" name="FormatType" id="FormatType2" value="title" checked>
+	<label for="FormatType2">xxx_title</label>
+	<br>
+	<input type="radio" onchange="ProcessResult()" name="FormatType" id="FormatType3" value="card"> 
+	<label for="FormatType3">&ltcard=xxx&gt</label>
+
+	<br>
+
+	<span>Input:<span>
+	<br>
+
+	<textarea id="input" rows="20" oninput="ProcessResult()" cols="50">
 Arcades' Strategy
-</textarea>
+	</textarea>
 
-<textarea id="result" onchange="" rows="20" cols="50">
+	<textarea id="result" onchange="" rows="20" cols="50">
 
-</textarea>
+	</textarea>
   
 
 </body>
