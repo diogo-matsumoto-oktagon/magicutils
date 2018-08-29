@@ -61,8 +61,13 @@
 					sResult = GenerateLocKeyTitle(sValue);
 				}
 				else if (sFormatType == "card") {
+					// card link key:
 					sResult =  "<card="+ GenerateLocKey(sValue) + ">";
 				
+				}
+				else if (sFormatType == "key") {
+					// localization key:
+					sResult =  "[key="+ GenerateLocKey(sValue) + "]";
 				}
 				else {
 				
@@ -92,6 +97,9 @@
 	<br>
 	<input type="radio" onchange="ProcessResult()" name="FormatType" id="FormatType3" value="card"> 
 	<label for="FormatType3">&ltcard=xxx&gt</label>
+	<br>
+	<input type="radio" onchange="ProcessResult()" name="FormatType" id="FormatType4" value="key"> 
+	<label for="FormatType4">[key=xxx]</label>
 
 	<br>
 
@@ -99,8 +107,7 @@
 	<br>
 
 	<textarea id="input" rows="20" oninput="ProcessResult()" cols="50">
-Arcades' Strategy
-	</textarea>
+Arcades' Strategy</textarea>
 
 	<textarea id="result" onchange="" rows="20" cols="50">
 
