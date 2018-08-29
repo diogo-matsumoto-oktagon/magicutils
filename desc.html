@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+	<script>
+	
+	function CreateOption(sGroup, sValue, bChecked) {
+	
+		var sFormat =  function(){/*
+	<br>
+	<input type="radio" onchange="ProcessResult()" name="[GROUP]" id="[GROUP][ID]" value="[VALUE]" [CHECKED]> 
+	<label for="[GROUP][ID]">[VALUE]</label>
+*/}.toString().slice(14,-3);
+
+		sHtml = sFormat
+			.replace(/\[GROUP\]/g, sGroup)
+			.replace(/\[VALUE\]/g, sValue)
+			.replace(/\[ID\]/g, sValue)
+			.replace(/\[CHECKED\]/g, bChecked ? "checked" : "")
+		;
+		
+		// return sHtml;
+		// insert children of group:
+		document.getElementById(sGroup).innerHTML += sHtml;
+		console.log(sHtml)
+		
+	}
+	
+	function ProcessResult() {
+	
+		var sInput = document.getElementById('input').value.trim();
+		var vOptions = [];
+		
+		// get format option 
+		var sFormatType = document.querySelector('input[name="FormatType"]:checked').value;
+		var sTuning = document.querySelector('input[name="Tuning"]:checked').value;
+		
+		vOptions.push(sFormatType);
+		vOptions.push(sTuning);
+		
+		
+		var sResult = sInput + " " + vOptions.join('; ') + ".";
+		document.getElementById('result').value = sResult;
+	}
+	
+	function OnLoad() {
+		CreateOption("FormatType", "Concert Piano", true);
+		CreateOption("FormatType", "Ballad Piano");
+		
+		CreateOption("Tuning", "440hz", true);
+		CreateOption("Tuning", "432hz");
+		ProcessResult();
+	}
+	
+	window.onload = OnLoad;
+	</script>
+
+	<span>Options:<span>
+	<br>
+	<div id="FormatType">
+	</div>
+	
+	<div id="Tuning">
+	</div>
+	
+	<br>
+	
+	<div class="slidecontainer">
+		Brilliance TODO
+		<input type="range" min="0" max="10" value="2" class="slider" id="myRange">
+	</div>
+	
+	<br>
+
+	<span>Input:<span>
+	<br>
+
+<textarea id="input" rows="1" oninput="ProcessResult()" cols="50">
+Recorded on Roland HP605.
+</textarea>
+
+	<br>
+	<textarea id="result" onchange="" rows="20" cols="50">
+
+	</textarea>
+  
+
+</body>
+</html>
