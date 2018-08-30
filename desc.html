@@ -4,6 +4,20 @@
 
 	<script>
 	
+	function OnLoad() {
+		CreateOption("FormatType", "Concert Piano", true);
+		CreateOption("FormatType", "Ballad Piano");
+		CreateOption("FormatType", "Mellow Piano");
+		CreateOption("FormatType", "Bright Piano");
+		
+		CreateOption("Tuning", "440hz", true);
+		CreateOption("Tuning", "432hz");
+		
+		SetupSlider();
+		
+		ProcessResult();
+	}
+	
 	function CreateOption(sGroup, sValue, bChecked) {
 	
 		var sFormat =  function(){/*
@@ -33,23 +47,55 @@
 		
 		// get format option 
 		var sFormatType = document.querySelector('input[name="FormatType"]:checked').value;
-		var sTuning = document.querySelector('input[name="Tuning"]:checked').value;
-		
 		vOptions.push(sFormatType);
-		vOptions.push(sTuning);
+		
+		// tuning
+		var sTuning = document.querySelector('input[name="Tuning"]:checked').value;
+		if (sTuning != "440hz") {
+			vOptions.push(sTuning);
+		}
+		
+		// brilliance
+		var iBrilliance = document.getElementById('sliderBrilliance').value;
+		if (iBrilliance != 0) {
+			vOptions.push("Brilliance " + GetBrillianceDisplay(iBrilliance));
+		}
 		
 		
-		var sResult = sInput + " " + vOptions.join('; ') + ".";
+		
+		if (vOptions.length == 1) {
+			
+			vOptions.push("Default Settings");
+		}
+		
+		var sResult = sInput + " ";
+		
+		sResult += vOptions.join('; ');
+		
+		sResult += ".";
 		document.getElementById('result').value = sResult;
 	}
 	
-	function OnLoad() {
-		CreateOption("FormatType", "Concert Piano", true);
-		CreateOption("FormatType", "Ballad Piano");
+	function SetupSlider() {
+	
+		var pSlider = document.getElementById('sliderBrilliance');
+		var pLabel = document.getElementById('labelBrilliance');
 		
-		CreateOption("Tuning", "440hz", true);
-		CreateOption("Tuning", "432hz");
-		ProcessResult();
+		pLabel.innerHTML = GetBrillianceDisplay(pSlider.value);
+		pSlider.oninput = function () {
+			pLabel.innerHTML = GetBrillianceDisplay(pSlider.value);
+			ProcessResult();
+		}
+		
+	}
+	
+	function GetBrillianceDisplay(iValue) {
+		if (iValue > 0) {
+			return "+" + iValue;
+		}
+		else {
+			return iValue;
+		}
 	}
 	
 	window.onload = OnLoad;
@@ -65,9 +111,10 @@
 	
 	<br>
 	
-	<div class="slidecontainer">
-		Brilliance TODO
-		<input type="range" min="0" max="10" value="2" class="slider" id="myRange">
+	<div>
+		Brilliance
+		<input type="range" min="-10" max="10" value="2" class="slider" id="sliderBrilliance">
+		<span id="labelBrilliance"> +2</span>
 	</div>
 	
 	<br>
@@ -75,12 +122,12 @@
 	<span>Input:<span>
 	<br>
 
-<textarea id="input" rows="1" oninput="ProcessResult()" cols="50">
+<textarea id="input" rows="2" oninput="ProcessResult()" cols="60">
 Recorded on Roland HP605.
 </textarea>
 
 	<br>
-	<textarea id="result" onchange="" rows="20" cols="50">
+	<textarea id="result" onchange="" rows="20" cols="60">
 
 	</textarea>
   
