@@ -106,6 +106,10 @@
 	}
 	
 	function OnFocusResult(pTextArea) {
+		CopyText(pTextArea);
+	}
+	
+	function CopyText(pTextArea) {
 		pTextArea.select();
 		document.execCommand('copy');
 	}
@@ -140,12 +144,12 @@
 	<span>Input:<span>
 	<br>
 
-<textarea id="input" rows="2" oninput="ProcessResult()" cols="60">
-Recorded on Roland HP605.
-</textarea>
+	<textarea id="input" rows="2" oninput="ProcessResult()" cols="60">
+	Recorded on Roland HP605.
+	</textarea>
 
 	<br>
-	<textarea id="result" onchange="" rows="20" cols="60" 
+	<textarea id="result" onchange="" rows="5" cols="60" 
 		onfocus="OnFocusResult(this);" onmouseup="return false;"
 	>
 
