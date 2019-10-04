@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+	<script>
+	
+	window.m_fStartedTime = 0;
+	window.m_sExpectedText = "";
+	window.m_vExpectedTextOptions = [];
+	window.m_pInput = null;
+	window.m_pOption = null;
+	
+	
+	function OnLoad() {
+		window.m_pInput = document.getElementById("input");
+		window.m_pOption = document.getElementById("option");
+		ResetCount();
+		
+		AddTextOption("Teste");
+		AddTextOption("Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
+		AddTextOption("Cras id cursus nisi, in tristique magna.");
+		AddTextOption("Nulla porta consectetur massa ut sollicitudin. Cras placerat mi eu adipiscing varius. Maecenas tristique est ac faucibus tincidunt. Donec iaculis iaculis luctus. Nullam tempor ut risus ut dictum.");
+	}
+	
+	
+	
+	function AddTextOption(sText) {
+	
+		window.m_vExpectedTextOptions.push(sText);
+	}
+	
+	function OnChangeTextSelection() {
+	
+		var iOption = parseInt(window.m_pOption.value);
+		
+		if (iOption >= 0 && iOption < window.m_vExpectedTextOptions.length) {
+			var sText = window.m_vExpectedTextOptions[iOption];
+			
+			window.m_sExpectedText = sText;
+			document.getElementById("option_display").innerHTML = window.m_sExpectedText;
+			
+			ResetCount();
+		}
+		else {
+			window.m_sExpectedText = null;
+			document.getElementById("option_display").innerHTML = "Not found id: \"" + window.m_pOption.value +"\". Must be between 0 and " + window.m_vExpectedTextOptions.length;
+		}
+	}
+	
+	function OnChangeTextInput() {
+	
+		if (IsStarted()) {
+		
+			CheckText();
+		}
+		else {
+			
+			StartCount();
+		}
+	}
+	
+	
+	function ResetCount() {
+	
+		window.m_fStartedTime = 0;
+		window.m_pInput.value = "";
+		document.getElementById("output_result").innerHTML = "";
+	}
+	
+	
+	function IsStarted() {
+	
+		return window.m_fStartedTime > 0;
+	}
+	
+	function StartCount() {
+		window.m_fStartedTime = new Date().getTime();
+		
+	}
+	
+	function StopCount() {
+	
+		if (IsStarted()) {
+			
+			var fNow = new Date().getTime();
+			var fDelta = ( fNow - window.m_fStartedTime ) / 1000;
+			sResult = "Finished in " + fDelta + " seconds";
+			document.getElementById("output_result").innerHTML = sResult;
+		}
+	}
+	
+	function CheckText() {
+		
+		var sText = window.m_pInput.value;
+		
+		if (window.m_sExpectedText == sText) {
+		
+			StopCount();
+		}
+	}
+	
+	
+	window.onload = OnLoad;
+	</script>
+
+	<span>Select Text ID:<span>
+	<textarea id="option" rows="1" oninput="OnChangeTextSelection()" cols="3"></textarea>
+	
+	<br>
+	<span id="option_display"></span>
+	<br>
+	
+	<textarea id="input" rows="20" oninput="OnChangeTextInput()" cols="50"></textarea>
+	
+	<br>
+	<span id="output_result"></span>
+</body>
+</html>
