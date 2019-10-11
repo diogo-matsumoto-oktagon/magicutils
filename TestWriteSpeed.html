@@ -5,6 +5,7 @@
 	<script>
 	
 	window.m_fStartedTime = 0;
+	window.m_bFinished = false;
 	window.m_sExpectedText = "";
 	window.m_vExpectedTextOptions = [];
 	window.m_pInput = null;
@@ -17,9 +18,14 @@
 		ResetCount();
 		
 		AddTextOption("Teste");
-		AddTextOption("Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
-		AddTextOption("Cras id cursus nisi, in tristique magna.");
-		AddTextOption("Nulla porta consectetur massa ut sollicitudin. Cras placerat mi eu adipiscing varius. Maecenas tristique est ac faucibus tincidunt. Donec iaculis iaculis luctus. Nullam tempor ut risus ut dictum.");
+		AddTextOption("Bom dia");
+		AddTextOption("Boa tarde");
+		AddTextOption("Missão do spinda na igreja");
+		AddTextOption("Mas tem que fazer tudo agora");
+		AddTextOption("Mas tá melhor que muita gente");
+		AddTextOption("Não é a mesma coisa");
+		AddTextOption("Falando assim até parece que vai toda semana na Gracco comer");
+		AddTextOption("Que sorte ter professor assim");
 	}
 	
 	
@@ -27,6 +33,13 @@
 	function AddTextOption(sText) {
 	
 		window.m_vExpectedTextOptions.push(sText);
+	}
+	
+	function SetRandomOption() {
+	
+		var iRandom = parseInt(Math.random() * window.m_vExpectedTextOptions.length);
+		window.m_pOption.value = iRandom;
+		OnChangeTextSelection();
 	}
 	
 	function OnChangeTextSelection() {
@@ -49,7 +62,10 @@
 	
 	function OnChangeTextInput() {
 	
-		if (IsStarted()) {
+		if (IsFinished()) {
+			// do nothing
+		}
+		else if (IsStarted()) {
 		
 			CheckText();
 		}
@@ -65,6 +81,7 @@
 		window.m_fStartedTime = 0;
 		window.m_pInput.value = "";
 		document.getElementById("output_result").innerHTML = "";
+		window.m_bFinished = false;
 	}
 	
 	
@@ -72,10 +89,15 @@
 	
 		return window.m_fStartedTime > 0;
 	}
+	function IsFinished() {
+	
+		return window.m_bFinished;
+	}
 	
 	function StartCount() {
 		window.m_fStartedTime = new Date().getTime();
 		
+		window.m_pInput.value = window.m_pInput.value.trim();
 	}
 	
 	function StopCount() {
@@ -86,6 +108,7 @@
 			var fDelta = ( fNow - window.m_fStartedTime ) / 1000;
 			sResult = "Finished in " + fDelta + " seconds";
 			document.getElementById("output_result").innerHTML = sResult;
+			
 		}
 	}
 	
@@ -96,6 +119,7 @@
 		if (window.m_sExpectedText == sText) {
 		
 			StopCount();
+			window.m_bFinished = true;
 		}
 	}
 	
