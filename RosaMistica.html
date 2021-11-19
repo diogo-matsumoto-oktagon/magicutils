@@ -1,16 +1,22 @@
-Selecione o arquivo de produtos:<BR>
+
 
 <!DOCTYPE html>
 <html>
 <body onload="OnSelectFile()">
 
+Quantidade Por CSV:
+<input type="text" id="iMaxPerCsv" value="2500">
+<BR>
+<BR>
+
+Selecione o arquivo de produtos:
+<BR>
 <input type="file" id="myFile" multiple size="50" onchange="OnSelectFile()">
 
-<p id="demo"></p>
   
 <script>
 
-const iMaxPerCsv = 500;
+var iMaxPerCsv = 2500;
 // Select file:
 function OnSelectFile(){
   var x = document.getElementById("myFile");
@@ -19,6 +25,8 @@ function OnSelectFile(){
     if (x.files.length == 0) {
       txt = "Select one or more files.";
     } else {
+	
+		iMaxPerCsv = document.getElementById("iMaxPerCsv").value;
       for (var i = 0; i < x.files.length; i++) {
       
      	 var file = x.files[i];
@@ -27,7 +35,8 @@ function OnSelectFile(){
         	// aqui ta o resultado conteudo do text
 			var vCsvFiles = ExportProductData(reader.result);
 			console.log("files: " + vCsvFiles.length);
-			for (var iFile in vCsvFiles) {
+			for (var iFile = 0; iFile < vCsvFiles.length; ++iFile) {
+			//for (var iFile in vCsvFiles) {
 				download("produtos "+ (parseInt(iFile)+1) +" de "+vCsvFiles.length+".csv", vCsvFiles[iFile]);
 			}
             
@@ -36,16 +45,7 @@ function OnSelectFile(){
         
       }
     }
-  } 
-  else {
-    if (x.value == "") {
-      txt += "Select one or more files.";
-    } else {
-      txt += "The files property is not supported by your browser!";
-      txt  += "<br>The path of the selected file: " + x.value; // If the browser does not support the files property, it will return the path of the selected file instead. 
-    }
   }
-  document.getElementById("demo").innerHTML = txt;
 }
 
 
@@ -210,7 +210,8 @@ function IsValidDate(sDate) {
 					.split('/')[2] // "2021"
   var iYear = parseInt(sDateYear);
   
-  return iYear >= 2018;
+  // return iYear >= 2018; //
+  return iYear < 2018; //
 }
 
 // return array of string, with the csv to be downloaded
@@ -303,10 +304,10 @@ function ExportProductData(sProductCsv) {
       continue;
     }
     
-    // validate if the row can be exported:
-    if (!IsValidDate(vCol[iInsertDateIndex])) {
-      continue;
-    }
+ //   // validate if the row can be exported:
+ //   if (!IsValidDate(vCol[iInsertDateIndex])) {
+ //     continue;
+ //   }
     
     // Shift wrong coluns values, due to products cadastred with ';' instead of '/'
     if (vCol[iAmountIndex] == "") {
@@ -383,8 +384,6 @@ function ConsoleLogOnce(sText) {
 
 
 </script>
-
-<p><strong>Tip:</strong> Use the Control or the Shift key to select multiple files.</p>
 
 </body>
 </html>
