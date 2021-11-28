@@ -17,7 +17,11 @@ Selecione o arquivo de produtos:
 <script>
 
 var iMaxPerCsv = 2500;
+
+// -------------
 // Select file:
+// -------------
+
 function OnSelectFile(){
   var x = document.getElementById("myFile");
   var txt = "";
@@ -49,7 +53,9 @@ function OnSelectFile(){
 }
 
 
+// -------------
 // Download file:
+// -------------
 function download(filename, text) {
   var element = document.createElement('a');
   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -64,8 +70,9 @@ function download(filename, text) {
 }
 
 
+// -------------
 // Process stuff:
-
+// -------------
 //var m_sImportTestData = require('./tests')
 
 // all values from given index are shift to left
@@ -114,12 +121,10 @@ function MergeArrayValues(vArray, iIndex, iLength, sMergeString) {
    
   }
   
-  
-  sFinalValue += sMergeString + vRemovedItems.join(sMergeString)
+  if (vRemovedItems.length > 0) {
+    sFinalValue += sMergeString + vRemovedItems.join(sMergeString)
+  }
   vArray[iIndex] = sFinalValue
-  
-  
-  
 }
 
 function _testMergeArrayValues() {
@@ -138,13 +143,77 @@ function _testMergeArrayValues() {
 _testMergeArrayValues();
 
 
-var m_dFields = {
+const m_dFields = {
  "Código": "CODIGO",
  "Descrição": "NOME",
  "Unidade": "MEDIDA",
  "Classificação fiscal": "NCM",// todo: talvez eh um codigo especifico pro sistema
  "Preço": "VENDA",
 }
+
+
+  // the exported final csv.  todo: split 500
+const m_vExportedHeaders = [
+"ID",
+"Código",
+"Descrição",
+"Unidade",
+"Classificação fiscal",
+"Origem",
+"Preço",
+"Valor IPI fixo",
+"Observações",
+"Situação",
+"Estoque",
+"Preço de custo",
+"Cód no fornecedor",
+"Fornecedor",
+"Localização",
+"Estoque maximo",
+"Estoque minimo",
+"Peso líquido (Kg)",
+"Peso bruto (Kg)",
+"GTIN/EAN",
+"GTIN/EAN da embalagem",
+"Largura do Produto",
+"Altura do Produto",
+"Profundidade do produto",
+"Data Validade",
+"Descrição do Produto no Fornecedor",
+"Descrição Complementar",
+"Unidade por Caixa",
+"Produto Variação",
+"Tipo Produção",
+"Classe de enquadramento do IPI",
+"Código da lista de serviços",
+"Tipo do item",
+"Grupo de Tags/Tags",
+"Tributos",
+"Código Pai",
+"Código Integração",
+"Grupo de produtos",
+"Marca",
+"CEST",
+"Volumes",
+"Descrição Curta",
+"Cross-Docking",
+"URL Imagens Externas",
+"Link Externo",
+"Meses Garantia no Fornecedor",
+"Clonar dados do pai",
+"Condição do produto",
+"Frete Grátis",
+"Número FCI",
+"Vídeo",
+"Departamento",
+"Unidade de medida",
+"Preço de compra",
+"Valor base ICMS ST para retenção",
+"Valor ICMS ST para retenção",
+"Valor ICMS próprio do substituto",
+"Categoria do produto"
+  ]
+
 
 // Converts the new system's column to old system column name.
 // used to easier access the old system's'
@@ -205,6 +274,9 @@ function ExtractHeaderIndices(vHeaders) {
 
 // date received: "02/09/2021 17:32:42"
 function IsValidDate(sDate) {
+  return true;
+
+  /*//
   var sDateYear = sDate
 					.split(' ')[0] // "02/09/2021"
 					.split('/')[2] // "2021"
@@ -212,6 +284,7 @@ function IsValidDate(sDate) {
   
   // return iYear >= 2018; //
   return iYear < 2018; //
+  //*/
 }
 
 // return array of string, with the csv to be downloaded
@@ -221,80 +294,16 @@ function ExportProductData(sProductCsv) {
   // get header indices
   var dHeaderIndex = ExtractHeaderIndices(vRows[0].split(';'))
   
-  //console.log(vRows[0]);
-  //console.log("Header index");
-  //console.log(dHeaderIndex);
   var iAmountIndex = dHeaderIndex["MEDIDA"];
   var iNameIndex = dHeaderIndex["NOME"];
   var iInsertDateIndex = dHeaderIndex["DATAHORINC"]; // index to validate inserted date, to only consider recent values;
   
-  // the exported final csv.  todo: split 500
-  var vExportedHeaders = [
-"ID",
-"Código",
-"Descrição",
-"Unidade",
-"Classificação fiscal",
-"Origem",
-"Preço",
-"Valor IPI fixo",
-"Observações",
-"Situação",
-"Estoque",
-"Preço de custo",
-"Cód no fornecedor",
-"Fornecedor",
-"Localização",
-"Estoque maximo",
-"Estoque minimo",
-"Peso líquido (Kg)",
-"Peso bruto (Kg)",
-"GTIN/EAN",
-"GTIN/EAN da embalagem",
-"Largura do Produto",
-"Altura do Produto",
-"Profundidade do produto",
-"Data Validade",
-"Descrição do Produto no Fornecedor",
-"Descrição Complementar",
-"Unidade por Caixa",
-"Produto Variação",
-"Tipo Produção",
-"Classe de enquadramento do IPI",
-"Código da lista de serviços",
-"Tipo do item",
-"Grupo de Tags/Tags",
-"Tributos",
-"Código Pai",
-"Código Integração",
-"Grupo de produtos",
-"Marca",
-"CEST",
-"Volumes",
-"Descrição Curta",
-"Cross-Docking",
-"URL Imagens Externas",
-"Link Externo",
-"Meses Garantia no Fornecedor",
-"Clonar dados do pai",
-"Condição do produto",
-"Frete Grátis",
-"Número FCI",
-"Vídeo",
-"Departamento",
-"Unidade de medida",
-"Preço de compra",
-"Valor base ICMS ST para retenção",
-"Valor ICMS ST para retenção",
-"Valor ICMS próprio do substituto",
-"Categoria do produto"
-  ]
   
   var vCsvFiles = [];
   
   var vCsvLines = [];
   
-  vCsvLines.push(ConvertCsvColumn(vExportedHeaders));
+  vCsvLines.push(ConvertCsvColumn(m_vExportedHeaders));
   // fazer ao contrario, e ate 500.
   //for (var iRow = 1; iRow < vRows.length; ++iRow) {
   for (var iRow = 1; iRow < vRows.length; ++iRow) {
@@ -303,11 +312,6 @@ function ExportProductData(sProductCsv) {
     if (vCol.length < 2) {
       continue;
     }
-    
- //   // validate if the row can be exported:
- //   if (!IsValidDate(vCol[iInsertDateIndex])) {
- //     continue;
- //   }
     
     // Shift wrong coluns values, due to products cadastred with ';' instead of '/'
     if (vCol[iAmountIndex] == "") {
@@ -325,8 +329,8 @@ function ExportProductData(sProductCsv) {
     var iOldValueIndex; // 3
 	
 	// for each header, try to find it's value in old data.
-    for (var iHeaderIndex in vExportedHeaders) {      
-      sHeader = vExportedHeaders[iHeaderIndex];
+    for (var iHeaderIndex in m_vExportedHeaders) {      
+      sHeader = m_vExportedHeaders[iHeaderIndex];
       sHeaderOld = m_dFields[sHeader];
       if (sHeaderOld != null) {
         iOldValueIndex = dHeaderIndex[sHeaderOld];
@@ -353,7 +357,7 @@ function ExportProductData(sProductCsv) {
 		vCsvFiles.push(vCsvLines.join('\n'));
 		
 		vCsvLines = [];
-		vCsvLines.push(ConvertCsvColumn(vExportedHeaders));
+		vCsvLines.push(ConvertCsvColumn(m_vExportedHeaders));
 	}
 	
 	
@@ -380,6 +384,130 @@ function ConsoleLogOnce(sText) {
 
 
 
+// -------------
+// Google Sheets stuff
+// -------------
+/**
+ * Trim the '-' at start of string.
+ * 
+ * @param {String} value to trim.
+ * @return the trimmed value.
+ * @customfunction
+ */
+function TrimDesc(sValue, bEnd) {
+  var iStartIndex = 0;
+  var cLetter;
+  var iLength = sValue.length;
+  var sResult;
+  if (!bEnd) {
+    for (var i in sValue) {
+      if (!IsCharToTrim(sValue[i])) {
+        break;
+      }
+      ++iStartIndex;
+    }
+    sResult = sValue.substr(iStartIndex);
+  }
+  else {
+
+    for (var i = iLength -1; i >= 0; --i) {
+      if (!IsCharToTrim(sValue[i])) {
+        break;
+      }
+      ++iStartIndex;
+    }
+    sResult = sValue.substr(0, iLength - iStartIndex);
+  }
+  return sResult
+
+}
+
+function IsCharToTrim(cLetter) {
+  return cLetter == '-' 
+  || cLetter == ' ' 
+  || cLetter == ','
+  ;
+}
+
+/**
+ * Trim the '-' at start of string.
+ * 
+ * @param {Array} value to trim.
+ * @return the trimmed value.
+ * @customfunction
+ */
+function TrimDescAll(input, bEnd) {
+
+  return input.map(row => row.map(cell => TrimDesc(cell, bEnd)));
+
+}
+
+
+/**
+ * Get the description extra value. The short desc with it's size and brand
+ * Created to separate a single description into it's name and extra desc
+ * e.g.: "VESTIDO WARM - M NUBIA" returns "M NUBIA"
+ * 
+ * @param {Array} value to trim.
+ * @return the trimmed value.
+ * @customfunction
+ */
+function GetDescExtra(sValue) {
+  var iIndex = sValue.lastIndexOf('-');
+  if (iIndex == - 1) {
+    return "";
+  }
+  else {
+    return sValue.substr(iIndex +1).trim();
+  }
+}
+
+
+/**
+ * Array input for GetDescExtra
+ * 
+ * @param {Array} values to get extra desc.
+ * @return the extra desc.
+ * @customfunction
+ */
+function GetDescExtraAll(input) {
+
+  return input.map(row => row.map(cell => GetDescExtra(cell)));
+
+}
+
+/**
+ * Get the description extra value. The short desc with it's size and brand
+ * Created to separate a single description into it's name and extra desc
+ * e.g.: "VESTIDO WARM - M NUBIA" returns "VESTIDO WARM"
+ * 
+ * @param {Array} value to trim.
+ * @return the trimmed value.
+ * @customfunction
+ */
+function RemoveDescExtra(sValue) {
+  var iIndex = sValue.lastIndexOf('-');
+  if (iIndex == -1) {
+    return sValue;
+  }
+  else {
+    return sValue.substr(0, iIndex -1).trim();
+  }
+}
+
+
+/**
+ * Array input for GetDescExtra
+ * 
+ * @param {Array} values to get extra desc.
+ * @return the extra desc.
+ * @customfunction
+ */
+function RemoveDescExtraAll(input) {
+
+  return input.map(row => row.map(cell => RemoveDescExtra(cell)));
+
+}
 
 
 
