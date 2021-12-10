@@ -1,518 +1,526 @@
-
-
 <!DOCTYPE html>
 <html>
+
 <body onload="OnSelectFile()">
 
-Quantidade Por CSV:
-<input type="text" id="iMaxPerCsv" value="2500">
-<BR>
-<BR>
+	Quantidade Por CSV:
+	<input type="text" id="iMaxPerCsv" value="5000">
+	<BR>
+	<BR>
 
-Selecione o arquivo de produtos:
-<BR>
-<input type="file" id="myFile" multiple size="50" onchange="OnSelectFile()">
+	Selecione o arquivo de produtos:
+	<BR>
+	<input type="file" id="myFile" multiple size="50" onchange="OnSelectFile()">
 
-  
-<script>
 
-var iMaxPerCsv = 2500;
+	<script>
 
-// -------------
-// Select file:
-// -------------
+		var iMaxPerCsv = 5000;
 
-function OnSelectFile(){
-  var x = document.getElementById("myFile");
-  var txt = "";
-  if ('files' in x) {
-    if (x.files.length == 0) {
-      txt = "Select one or more files.";
-    } else {
-	
-		iMaxPerCsv = document.getElementById("iMaxPerCsv").value;
-      for (var i = 0; i < x.files.length; i++) {
-      
-     	 var file = x.files[i];
-        var reader = new FileReader();
-        reader.onload = function() {
-        	// aqui ta o resultado conteudo do text
-			var vCsvFiles = ExportProductData(reader.result);
-			console.log("files: " + vCsvFiles.length);
-			for (var iFile = 0; iFile < vCsvFiles.length; ++iFile) {
-			//for (var iFile in vCsvFiles) {
-				download("produtos "+ (parseInt(iFile)+1) +" de "+vCsvFiles.length+".csv", vCsvFiles[iFile]);
+		// -------------
+		// Select file:
+		// -------------
+
+		function OnSelectFile() {
+			var x = document.getElementById("myFile");
+			var txt = "";
+			if ('files' in x) {
+				if (x.files.length == 0) {
+					txt = "Select one or more files.";
+				} else {
+
+					iMaxPerCsv = document.getElementById("iMaxPerCsv").value;
+					for (var i = 0; i < x.files.length; i++) {
+
+						var file = x.files[i];
+						var reader = new FileReader();
+						reader.onload = function () {
+							// aqui ta o resultado conteudo do text
+							var vCsvFiles = ExportProductData(reader.result);
+							console.log("files: " + vCsvFiles.length);
+							for (var iFile = 0; iFile < vCsvFiles.length; ++iFile) {
+								//for (var iFile in vCsvFiles) {
+								download("produtos " + (parseInt(iFile) + 1) + " de " + vCsvFiles.length + ".csv", vCsvFiles[iFile]);
+							}
+
+						}
+						reader.readAsText(file);
+
+					}
+				}
 			}
-            
-        }
-        reader.readAsText(file);
-        
-      }
-    }
-  }
-}
+		}
 
 
-// -------------
-// Download file:
-// -------------
-function download(filename, text) {
-  var element = document.createElement('a');
-  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  element.setAttribute('download', filename);
+		// -------------
+		// Download file:
+		// -------------
+		function download(filename, text) {
+			var element = document.createElement('a');
+			element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+			element.setAttribute('download', filename);
 
-  element.style.display = 'none';
-  document.body.appendChild(element);
+			element.style.display = 'none';
+			document.body.appendChild(element);
 
-  element.click();
+			element.click();
 
-  document.body.removeChild(element);
-}
+			document.body.removeChild(element);
+		}
 
 
-// -------------
-// Process stuff:
-// -------------
-//var m_sImportTestData = require('./tests')
+		// -------------
+		// Process stuff:
+		// -------------
+		//var m_sImportTestData = require('./tests')
 
-// all values from given index are shift to left
-// Called when found a wrong value, at MEDIDA, when it is not "un"
-function ShiftArray(vArray, iIndex) {
-  var iMax = vArray.length - 1;
-  for (var i = iIndex; i < iMax; ++i) {
-      vArray[i] = vArray[i + 1];
-  }
-}
+		// all values from given index are shift to left
+		// Called when found a wrong value, at MEDIDA, when it is not "un"
+		function ShiftArray(vArray, iIndex) {
+			var iMax = vArray.length - 1;
+			for (var i = iIndex; i < iMax; ++i) {
+				vArray[i] = vArray[i + 1];
+			}
+		}
 
-function _testShitArray() {
-  var vRow = ["desc1", "desc2", "0", "un", "213,99", "10/20/2002"]
-  ShiftArray(vRow, 2);
-  
-  if (vRow[2] != "un") {
-    console.log(arguments.callee.name + ": Failed test")
-    console.log(vRow)
-  }
-  else {
-    console.log(arguments.callee.name + ": Success")
-  }
- 
-}
-_testShitArray();
+		function _testShitArray() {
+			var vRow = ["desc1", "desc2", "0", "un", "213,99", "10/20/2002"]
+			ShiftArray(vRow, 2);
+
+			if (vRow[2] != "un") {
+				console.log(arguments.callee.name + ": Failed test")
+				console.log(vRow)
+			}
+			else {
+				console.log(arguments.callee.name + ": Success")
+			}
+
+		}
+		_testShitArray();
 
 
 
-/*
-* Merges certain values of a given array into a index.
-* Used to merge all "Desc" fields into a single "Desc" index.
-* iIndex is the starting index (the index that is not removed)
-* iLengt is the amount of indices to remove, should be 1 or higher.
-*/
-function MergeArrayValues(vArray, iIndex, iLength, sMergeString) {
-  var sFinalValue = vArray[iIndex];
-  //var vRemovedItems = vArray.splice(iIndex +1, iLength)
-  var vRemovedItems = []
-  
-  
-  var iLastIndex = iIndex + iLength + 1;
-  for (var i = iIndex + 1; i < iLastIndex; ++i) {
-    if (vArray[i] != "") {
-      vRemovedItems.push(vArray[i]);
-    }
-   
-  }
-  
-  if (vRemovedItems.length > 0) {
-    sFinalValue += sMergeString + vRemovedItems.join(sMergeString)
-  }
-  vArray[iIndex] = sFinalValue
-}
-
-function _testMergeArrayValues() {
-  var vRow = ["Dia feliz", "calca azul", "23", "G", "0", "un", "213,99", "10/20/2002"]
-  MergeArrayValues(vRow,1, 2, " - ");
-  
-  if (vRow[1] != "calca azul - 23 - G") {
-    console.log(arguments.callee.name + ": Failed test")
-    console.log(vRow)
-  }
-  else {
-    console.log(arguments.callee.name + ": Success")
-  }
-
-}
-_testMergeArrayValues();
+		/*
+		* Merges certain values of a given array into a index.
+		* Used to merge all "Desc" fields into a single "Desc" index.
+		* iIndex is the starting index (the index that is not removed)
+		* iLengt is the amount of indices to remove, should be 1 or higher.
+		*/
+		function MergeArrayValues(vArray, iIndex, iLength, sMergeString) {
+			var sFinalValue = vArray[iIndex];
+			//var vRemovedItems = vArray.splice(iIndex +1, iLength)
+			var vRemovedItems = []
 
 
-const m_dFields = {
- "Código": "CODIGO",
- "Descrição": "NOME",
- "Unidade": "MEDIDA",
- "Classificação fiscal": "NCM",// todo: talvez eh um codigo especifico pro sistema
- "Preço": "VENDA",
-}
+			var iLastIndex = iIndex + iLength + 1;
+			for (var i = iIndex + 1; i < iLastIndex; ++i) {
+				if (vArray[i] != "") {
+					vRemovedItems.push(vArray[i]);
+				}
+
+			}
+
+			if (vRemovedItems.length > 0) {
+				sFinalValue += sMergeString + vRemovedItems.join(sMergeString)
+			}
+			vArray[iIndex] = sFinalValue
+		}
+
+		function _testMergeArrayValues() {
+			var vRow = ["Dia feliz", "calca azul", "23", "G", "0", "un", "213,99", "10/20/2002"]
+			MergeArrayValues(vRow, 1, 2, " - ");
+
+			if (vRow[1] != "calca azul - 23 - G") {
+				console.log(arguments.callee.name + ": Failed test")
+				console.log(vRow)
+			}
+			else {
+				console.log(arguments.callee.name + ": Success")
+			}
+
+		}
+		_testMergeArrayValues();
 
 
-  // the exported final csv.  todo: split 500
-const m_vExportedHeaders = [
-"ID",
-"Código",
-"Descrição",
-"Unidade",
-"Classificação fiscal",
-"Origem",
-"Preço",
-"Valor IPI fixo",
-"Observações",
-"Situação",
-"Estoque",
-"Preço de custo",
-"Cód no fornecedor",
-"Fornecedor",
-"Localização",
-"Estoque maximo",
-"Estoque minimo",
-"Peso líquido (Kg)",
-"Peso bruto (Kg)",
-"GTIN/EAN",
-"GTIN/EAN da embalagem",
-"Largura do Produto",
-"Altura do Produto",
-"Profundidade do produto",
-"Data Validade",
-"Descrição do Produto no Fornecedor",
-"Descrição Complementar",
-"Unidade por Caixa",
-"Produto Variação",
-"Tipo Produção",
-"Classe de enquadramento do IPI",
-"Código da lista de serviços",
-"Tipo do item",
-"Grupo de Tags/Tags",
-"Tributos",
-"Código Pai",
-"Código Integração",
-"Grupo de produtos",
-"Marca",
-"CEST",
-"Volumes",
-"Descrição Curta",
-"Cross-Docking",
-"URL Imagens Externas",
-"Link Externo",
-"Meses Garantia no Fornecedor",
-"Clonar dados do pai",
-"Condição do produto",
-"Frete Grátis",
-"Número FCI",
-"Vídeo",
-"Departamento",
-"Unidade de medida",
-"Preço de compra",
-"Valor base ICMS ST para retenção",
-"Valor ICMS ST para retenção",
-"Valor ICMS próprio do substituto",
-"Categoria do produto"
-  ]
+		const m_dFields = {
+			"Código": "CODIGO",
+			"Descrição": "NOME",
+			"Unidade": "MEDIDA",
+			"Classificação fiscal": "NCM",// todo: talvez eh um codigo especifico pro sistema
+			"Preço": "VENDA",
+			"Descrição Curta": "DESC2",
+		}
 
 
-// Converts the new system's column to old system column name.
-// used to easier access the old system's'
-function ConvertColumnName(sName) {
-  return m_dFields[sName];
-}
+		// the exported final csv.  todo: split 500
+		const m_vExportedHeaders = [
+			"ID",
+			"Código",
+			"Descrição",
+			"Unidade",
+			"Classificação fiscal",
+			"Origem",
+			"Preço",
+			"Valor IPI fixo",
+			"Observações",
+			"Situação",
+			"Estoque",
+			"Preço de custo",
+			"Cód no fornecedor",
+			"Fornecedor",
+			"Localização",
+			"Estoque maximo",
+			"Estoque minimo",
+			"Peso líquido (Kg)",
+			"Peso bruto (Kg)",
+			"GTIN/EAN",
+			"GTIN/EAN da embalagem",
+			"Largura do Produto",
+			"Altura do Produto",
+			"Profundidade do produto",
+			"Data Validade",
+			"Descrição do Produto no Fornecedor",
+			"Descrição Complementar",
+			"Unidade por Caixa",
+			"Produto Variação",
+			"Tipo Produção",
+			"Classe de enquadramento do IPI",
+			"Código da lista de serviços",
+			"Tipo do item",
+			"Grupo de Tags/Tags",
+			"Tributos",
+			"Código Pai",
+			"Código Integração",
+			"Grupo de produtos",
+			"Marca",
+			"CEST",
+			"Volumes",
+			"Descrição Curta",
+			"Cross-Docking",
+			"URL Imagens Externas",
+			"Link Externo",
+			"Meses Garantia no Fornecedor",
+			"Clonar dados do pai",
+			"Condição do produto",
+			"Frete Grátis",
+			"Número FCI",
+			"Vídeo",
+			"Departamento",
+			"Unidade de medida",
+			"Preço de compra",
+			"Valor base ICMS ST para retenção",
+			"Valor ICMS ST para retenção",
+			"Valor ICMS próprio do substituto",
+			"Categoria do produto"
+		]
+
+
+		// Converts the new system's column to old system column name.
+		// used to easier access the old system's'
+		function ConvertColumnName(sName) {
+			return m_dFields[sName];
+		}
 
 
 
 
 
-// todo: escrever considerando " ; \n. ver como o sistema exporta.
-function ConvertCsvColumnValue(sValue) {
-  return '"' + sValue + '"';
-}
+		// todo: escrever considerando " ; \n. ver como o sistema exporta.
+		function ConvertCsvColumnValue(sValue) {
+			return '"' + sValue + '"';
+		}
 
-// Converts an array of values into a string that is ready to be a column line of csv text
-function ConvertCsvColumn(vValues) {
-  var vColumnValues = []
-  for (var i in vValues) {
-    vColumnValues.push(ConvertCsvColumnValue(vValues[i]))
-  }
-  
-  return vColumnValues.join(";")
-}
+		// Converts an array of values into a string that is ready to be a column line of csv text
+		function ConvertCsvColumn(vValues) {
+			var vColumnValues = []
+			for (var i in vValues) {
+				vColumnValues.push(ConvertCsvColumnValue(vValues[i]))
+			}
 
-function _testConvertCsvColumn() {
-  
-  var sText = ConvertCsvColumn(["Test", "199,00", "P", "213123"])
-  
-  if (sText != '"Test";"199,00";"P";"213123"') {
-    console.log(arguments.callee.name + ": Failed test")
-    console.log(vRow)
-  }
-  else {
-    console.log(arguments.callee.name + ": Success")
-  }
- 
-}
-_testShitArray();
+			return vColumnValues.join(";")
+		}
 
+		function _testConvertCsvColumn() {
 
+			var sText = ConvertCsvColumn(["Test", "199,00", "P", "213123"])
 
-// Converts a given array to an dic of indices of each array's values
-// Used for header columns to faster get the columns index by its name
-function ExtractHeaderIndices(vHeaders) {
-  var dIndex = {}
-  
-  var iLength = vHeaders.length;
-  for (var iIndex = 0; iIndex < iLength; ++iIndex) {    
-    dIndex[vHeaders[iIndex]] = iIndex
-  }
-   
-  
-  return dIndex;
-  
-}
+			if (sText != '"Test";"199,00";"P";"213123"') {
+				console.log(arguments.callee.name + ": Failed test")
+				console.log(vRow)
+			}
+			else {
+				console.log(arguments.callee.name + ": Success")
+			}
 
-// date received: "02/09/2021 17:32:42"
-function IsValidDate(sDate) {
-  return true;
-
-  /*//
-  var sDateYear = sDate
-					.split(' ')[0] // "02/09/2021"
-					.split('/')[2] // "2021"
-  var iYear = parseInt(sDateYear);
-  
-  // return iYear >= 2018; //
-  return iYear < 2018; //
-  //*/
-}
-
-// return array of string, with the csv to be downloaded
-function ExportProductData(sProductCsv) {
-  var vRows = sProductCsv.split('\n')
-  
-  // get header indices
-  var dHeaderIndex = ExtractHeaderIndices(vRows[0].split(';'))
-  
-  var iAmountIndex = dHeaderIndex["MEDIDA"];
-  var iNameIndex = dHeaderIndex["NOME"];
-  var iInsertDateIndex = dHeaderIndex["DATAHORINC"]; // index to validate inserted date, to only consider recent values;
-  
-  
-  var vCsvFiles = [];
-  
-  var vCsvLines = [];
-  
-  vCsvLines.push(ConvertCsvColumn(m_vExportedHeaders));
-  // fazer ao contrario, e ate 500.
-  //for (var iRow = 1; iRow < vRows.length; ++iRow) {
-  for (var iRow = 1; iRow < vRows.length; ++iRow) {
-
-    var vCol = vRows[iRow].split(';')
-    if (vCol.length < 2) {
-      continue;
-    }
-    
-    // Shift wrong coluns values, due to products cadastred with ';' instead of '/'
-    if (vCol[iAmountIndex] == "") {
-      ShiftArray(vCol, iAmountIndex)
-    }
-    
-    // now merge Name and descs into a single column
-    MergeArrayValues(vCol, iNameIndex, 3, " - ");
-    
-    var vColumnValues = []
-    // todo: converter column order to final
-    var sHeader;     // "Código"
-    var sHeaderOld;  // "CODIGO"
-    var sOldValue;   // "20161109"
-    var iOldValueIndex; // 3
-	
-	// for each header, try to find it's value in old data.
-    for (var iHeaderIndex in m_vExportedHeaders) {      
-      sHeader = m_vExportedHeaders[iHeaderIndex];
-      sHeaderOld = m_dFields[sHeader];
-      if (sHeaderOld != null) {
-        iOldValueIndex = dHeaderIndex[sHeaderOld];
-        
-        
-        if (iOldValueIndex != null) {
-          
-          vColumnValues.push(vCol[iOldValueIndex]);
-        }
-        else {
-          ConsoleLogOnce("Field " + sHeaderOld + " not found");
-          vColumnValues.push("");
-        }
-      }
-      else {
-        vColumnValues.push("");
-      }
-    }
-    
-    vCsvLines.push(ConvertCsvColumn(vColumnValues))
-    // reached the limit per csv?
-	if (vCsvLines.length == iMaxPerCsv) {
-		// yes, then push result into csv files
-		vCsvFiles.push(vCsvLines.join('\n'));
-		
-		vCsvLines = [];
-		vCsvLines.push(ConvertCsvColumn(m_vExportedHeaders));
-	}
-	
-	
-  }
-  
-  
-	// push last products into result:
-	if (vCsvLines.length >= 0) {
-		// yes, then push result into csv files
-		vCsvFiles.push(vCsvLines.join('\n'));
-	}
-  return vCsvFiles;
-}
-
-m_dAlreadyPrinted = {}
-function ConsoleLogOnce(sText) {
-  if (m_dAlreadyPrinted[sText] == null) {
-    console.log(sText);
-    m_dAlreadyPrinted[sText] = true;
-  }
-}
-
-//console.log(ExportProductData(m_sImportTestData));
+		}
+		_testShitArray();
 
 
 
-// -------------
-// Google Sheets stuff
-// -------------
-/**
- * Trim the '-' at start of string.
- * 
- * @param {String} value to trim.
- * @return the trimmed value.
- * @customfunction
- */
-function TrimDesc(sValue, bEnd) {
-  var iStartIndex = 0;
-  var cLetter;
-  var iLength = sValue.length;
-  var sResult;
-  if (!bEnd) {
-    for (var i in sValue) {
-      if (!IsCharToTrim(sValue[i])) {
-        break;
-      }
-      ++iStartIndex;
-    }
-    sResult = sValue.substr(iStartIndex);
-  }
-  else {
+		// Converts a given array to an dic of indices of each array's values
+		// Used for header columns to faster get the columns index by its name
+		function ExtractHeaderIndices(vHeaders) {
+			var dIndex = {}
 
-    for (var i = iLength -1; i >= 0; --i) {
-      if (!IsCharToTrim(sValue[i])) {
-        break;
-      }
-      ++iStartIndex;
-    }
-    sResult = sValue.substr(0, iLength - iStartIndex);
-  }
-  return sResult
-
-}
-
-function IsCharToTrim(cLetter) {
-  return cLetter == '-' 
-  || cLetter == ' ' 
-  || cLetter == ','
-  ;
-}
-
-/**
- * Trim the '-' at start of string.
- * 
- * @param {Array} value to trim.
- * @return the trimmed value.
- * @customfunction
- */
-function TrimDescAll(input, bEnd) {
-
-  return input.map(row => row.map(cell => TrimDesc(cell, bEnd)));
-
-}
+			var iLength = vHeaders.length;
+			for (var iIndex = 0; iIndex < iLength; ++iIndex) {
+				dIndex[vHeaders[iIndex]] = iIndex
+			}
 
 
-/**
- * Get the description extra value. The short desc with it's size and brand
- * Created to separate a single description into it's name and extra desc
- * e.g.: "VESTIDO WARM - M NUBIA" returns "M NUBIA"
- * 
- * @param {Array} value to trim.
- * @return the trimmed value.
- * @customfunction
- */
-function GetDescExtra(sValue) {
-  var iIndex = sValue.lastIndexOf('-');
-  if (iIndex == - 1) {
-    return "";
-  }
-  else {
-    return sValue.substr(iIndex +1).trim();
-  }
-}
+			return dIndex;
+
+		}
+
+		// date received: "02/09/2021 17:32:42"
+		function IsValidDate(sDate) {
+			return true;
+
+			/*//
+			var sDateYear = sDate
+							  .split(' ')[0] // "02/09/2021"
+							  .split('/')[2] // "2021"
+			var iYear = parseInt(sDateYear);
+		    
+			// return iYear >= 2018; //
+			return iYear < 2018; //
+			//*/
+		}
+
+		// return array of string, with the csv to be downloaded
+		function ExportProductData(sProductCsv) {
+			var vRows = sProductCsv.split('\n')
+
+			// get header indices
+			var dHeaderIndex = ExtractHeaderIndices(vRows[0].split(';'))
+
+			var iAmountIndex = dHeaderIndex["MEDIDA"];
+			var iShortDescIndex = dHeaderIndex["DESC2"];
+			var iNameIndex = dHeaderIndex["NOME"];
+			var iInsertDateIndex = dHeaderIndex["DATAHORINC"]; // index to validate inserted date, to only consider recent values;
 
 
-/**
- * Array input for GetDescExtra
- * 
- * @param {Array} values to get extra desc.
- * @return the extra desc.
- * @customfunction
- */
-function GetDescExtraAll(input) {
+			var vCsvFiles = [];
 
-  return input.map(row => row.map(cell => GetDescExtra(cell)));
+			var vCsvLines = [];
 
-}
+			vCsvLines.push(ConvertCsvColumn(m_vExportedHeaders));
+			//for (var iRow = 1; iRow < vRows.length; ++iRow) {
+			for (var iRow = 1; iRow < vRows.length; ++iRow) {
 
-/**
- * Get the description extra value. The short desc with it's size and brand
- * Created to separate a single description into it's name and extra desc
- * e.g.: "VESTIDO WARM - M NUBIA" returns "VESTIDO WARM"
- * 
- * @param {Array} value to trim.
- * @return the trimmed value.
- * @customfunction
- */
-function RemoveDescExtra(sValue) {
-  var iIndex = sValue.lastIndexOf('-');
-  if (iIndex == -1) {
-    return sValue;
-  }
-  else {
-    return sValue.substr(0, iIndex -1).trim();
-  }
-}
+				var vCol = vRows[iRow].split(';')
+				if (vCol.length < 2) {
+					continue;
+				}
+
+				// Shift wrong coluns values, due to products cadastred with ';' instead of '/'
+				if (vCol[iAmountIndex] == "") {
+					ShiftArray(vCol, iAmountIndex)
+				}
+
+				// now merge Name and descs into a single column
+				MergeArrayValues(vCol, iNameIndex, 3, " - ");
+
+				// now get the merged desc, and remove the last '-' and put it into DESC 2
+				var sShortDesc = GetDescExtra(vCol[iNameIndex]);
+				vCol[iShortDescIndex] = sShortDesc;
+
+				// now remove the short desc from original desc:
+				vCol[iNameIndex] = RemoveDescExtra(vCol[iNameIndex]);
 
 
-/**
- * Array input for GetDescExtra
- * 
- * @param {Array} values to get extra desc.
- * @return the extra desc.
- * @customfunction
- */
-function RemoveDescExtraAll(input) {
+				var vColumnValues = []
+				// todo: converter column order to final
+				var sHeader;     // "Código"
+				var sHeaderOld;  // "CODIGO"
+				var sOldValue;   // "20161109"
+				var iOldValueIndex; // 3
 
-  return input.map(row => row.map(cell => RemoveDescExtra(cell)));
+				// for each header, try to find it's value in old data.
+				for (var iHeaderIndex in m_vExportedHeaders) {
+					sHeader = m_vExportedHeaders[iHeaderIndex];
+					sHeaderOld = m_dFields[sHeader];
+					if (sHeaderOld != null) {
+						iOldValueIndex = dHeaderIndex[sHeaderOld];
 
-}
+
+						if (iOldValueIndex != null) {
+
+							vColumnValues.push(vCol[iOldValueIndex]);
+						}
+						else {
+							ConsoleLogOnce("Field " + sHeaderOld + " not found");
+							vColumnValues.push("");
+						}
+					}
+					else {
+						vColumnValues.push("");
+					}
+				}
+
+				vCsvLines.push(ConvertCsvColumn(vColumnValues))
+				// reached the limit per csv?
+				if (vCsvLines.length == iMaxPerCsv) {
+					// yes, then push result into csv files
+					vCsvFiles.push(vCsvLines.join('\n'));
+
+					vCsvLines = [];
+					vCsvLines.push(ConvertCsvColumn(m_vExportedHeaders));
+				}
+
+
+			}
+
+
+			// push last products into result:
+			if (vCsvLines.length >= 0) {
+				// yes, then push result into csv files
+				vCsvFiles.push(vCsvLines.join('\n'));
+			}
+			return vCsvFiles;
+		}
+
+		m_dAlreadyPrinted = {}
+		function ConsoleLogOnce(sText) {
+			if (m_dAlreadyPrinted[sText] == null) {
+				console.log(sText);
+				m_dAlreadyPrinted[sText] = true;
+			}
+		}
+
+		//console.log(ExportProductData(m_sImportTestData));
 
 
 
-</script>
+		// -------------
+		// Google Sheets stuff
+		// -------------
+		/**
+		 * Trim the '-' at start of string.
+		 * 
+		 * @param {String} value to trim.
+		 * @return the trimmed value.
+		 * @customfunction
+		 */
+		function TrimDesc(sValue, bEnd) {
+			var iStartIndex = 0;
+			var cLetter;
+			var iLength = sValue.length;
+			var sResult;
+			if (!bEnd) {
+				for (var i in sValue) {
+					if (!IsCharToTrim(sValue[i])) {
+						break;
+					}
+					++iStartIndex;
+				}
+				sResult = sValue.substr(iStartIndex);
+			}
+			else {
+
+				for (var i = iLength - 1; i >= 0; --i) {
+					if (!IsCharToTrim(sValue[i])) {
+						break;
+					}
+					++iStartIndex;
+				}
+				sResult = sValue.substr(0, iLength - iStartIndex);
+			}
+			return sResult
+
+		}
+
+		function IsCharToTrim(cLetter) {
+			return cLetter == '-'
+				|| cLetter == ' '
+				|| cLetter == ','
+				;
+		}
+
+		/**
+		 * Trim the '-' at start of string.
+		 * 
+		 * @param {Array} value to trim.
+		 * @return the trimmed value.
+		 * @customfunction
+		 */
+		function TrimDescAll(input, bEnd) {
+
+			return input.map(row => row.map(cell => TrimDesc(cell, bEnd)));
+
+		}
+
+
+		/**
+		 * Get the description extra value. The short desc with it's size and brand
+		 * Created to separate a single description into it's name and extra desc
+		 * e.g.: "VESTIDO WARM - M NUBIA" returns "M NUBIA"
+		 * 
+		 * @param {Array} value to trim.
+		 * @return the trimmed value.
+		 * @customfunction
+		 */
+		function GetDescExtra(sValue) {
+			var iIndex = sValue.lastIndexOf('-');
+			if (iIndex == - 1) {
+				return "";
+			}
+			else {
+				return sValue.substr(iIndex + 1).trim();
+			}
+		}
+
+
+		/**
+		 * Array input for GetDescExtra
+		 * 
+		 * @param {Array} values to get extra desc.
+		 * @return the extra desc.
+		 * @customfunction
+		 */
+		function GetDescExtraAll(input) {
+
+			return input.map(row => row.map(cell => GetDescExtra(cell)));
+
+		}
+
+		/**
+		 * Get the description extra value. The short desc with it's size and brand
+		 * Created to separate a single description into it's name and extra desc
+		 * e.g.: "VESTIDO WARM - M NUBIA" returns "VESTIDO WARM"
+		 * 
+		 * @param {Array} value to trim.
+		 * @return the trimmed value.
+		 * @customfunction
+		 */
+		function RemoveDescExtra(sValue) {
+			var iIndex = sValue.lastIndexOf('-');
+			if (iIndex == -1) {
+				return sValue;
+			}
+			else {
+				return sValue.substr(0, iIndex - 1).trim();
+			}
+		}
+
+
+		/**
+		 * Array input for GetDescExtra
+		 * 
+		 * @param {Array} values to get extra desc.
+		 * @return the extra desc.
+		 * @customfunction
+		 */
+		function RemoveDescExtraAll(input) {
+
+			return input.map(row => row.map(cell => RemoveDescExtra(cell)));
+
+		}
+
+
+
+	</script>
 
 </body>
-</html>
 
+</html>
